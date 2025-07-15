@@ -1,6 +1,4 @@
 from flask import Flask, request, render_template
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.wrappers import Response
 import email
 import quopri
 import re
@@ -13,7 +11,7 @@ def get_duration_hours(time_range):
         start_str, end_str = time_range.split("-")
         start_hour = int(start_str[:2])
         start_min = int(start_str[2:])
-        end_hour = int(end_str[:2])
+        end_hour = int(end_hour[:2])
         end_min = int(end_str[2:])
 
         start_total = start_hour * 60 + start_min
@@ -71,21 +69,21 @@ def index():
                                 extracted_items.append(text)
                                 total_hours += get_duration_hours(text)
 
-        try:
-            pay_rate = float(request.form.get("pay_rate", 0))
-            overtime_pay_rate = float(request.form.get("overtime_pay_rate", 0))
-            if total_hours > 80:
-                overtime = total_hours - 80
-                overtime_pay = round(overtime * overtime_pay_rate, 2)
-                intime_pay = round(80 * pay_rate, 2)
-                total_pay = round(intime_pay + overtime_pay, 2)
-            else:
-                intime_pay = round(total_hours * pay_rate, 2)
-                total_pay = intime_pay
-        except ValueError:
-            print("⚠️ Invalid pay rate input.")
+    try:
+        pay_rate = float(request.form.get("pay_rate", 0))
+        overtime_pay_rate = float(request.form.get("overtime_pay_rate", 0))
+        if total_hours > 80:
+            overtime = total_hours - 80
+            overtime_pay = round(overtime * overtime_pay_rate, 2)
+            intime_pay = round(80 * pay_rate, 2)
+            total_pay = round(intime_pay + overtime_pay, 2)
+        else:
+            intime_pay = round(total_hours * pay_rate, 2)
+            total_pay = intime_pay
+    except ValueError:
+        print("⚠️ Invalid pay rate input.")
 
-        print("✅ Done processing. Found:", extracted_items)
+    print("✅ Done processing. Found:", extracted_items)
 
     return render_template(
         "index.html",
@@ -96,10 +94,3 @@ def index():
         overtime_pay=round(overtime_pay, 2),
         item_count=len(extracted_items)
     )
-
-def handler(environ, start_response):
-    return app(environ, start_response)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

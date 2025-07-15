@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: lhhcsa-hours
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: gunicorn api.index:app
+    envVars:
+      - key: FLASK_ENV
+        value: production

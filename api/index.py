@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 app = Flask(__name__, template_folder="../templates")
 
 def get_duration_hours(time_range):
-    try:
         start_str, end_str = time_range.split("-")
         start_hour = int(start_str[:2])
         start_min = int(start_str[2:])
@@ -23,8 +22,6 @@ def get_duration_hours(time_range):
         duration_min = end_total - start_total
         duration_hours = round(duration_min / 60, 2)
         return duration_hours
-    except:
-        return 0.0
 
 
 @app.route("/", methods=["GET", "POST"])

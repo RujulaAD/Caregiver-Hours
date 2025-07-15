@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <title>MHTML Duration Extractor</title>
+</head>
+<body>
+  <h1>Caregiver Hours</h1>
+  <p>In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours.</p>
+  <p>Now, right-click anywhere on table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Now, upload that file here.</p>
+
+  <form method="POST" action="/" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".mhtml" required><br><br>
+
+    <label for="pay_rate">Enter pay rate:</label>
+    <input type="text" id="pay_rate" name="pay_rate">
+
+    <label for="overtime_pay_rate">Enter overtime pay rate:</label>
+    <input type="text" id="overtime_pay_rate" name="overtime_pay_rate">
+
+    <br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if extracted_items %}
+    <h2>Total Duration: {{ total_hours }} hours</h2>
+    <h3>Number of Visits: {{ item_count }}</h3>
+    <h3>Time Ranges:</h3>
+    <ul>
+      {% for item in extracted_items %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  {% elif request.method == 'POST' %}
+    <p>No time ranges were found.</p>
+  {% endif %}
+
+  {% if total_pay %}
+    <h3>Total Pay: ${{ total_pay }}</h3>
+    <h3>Intime Pay (up to 80 hrs): ${{ intime_pay }}</h3>
+    <h3>Overtime Pay: ${{ overtime_pay }}</h3>
+  {% endif %}
+</body>
+</html>

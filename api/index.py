@@ -31,81 +31,78 @@ def get_duration_hours(time_range):
 @app.route("/", methods=["GET", "POST"])
 def index():
     print("GET or POST received.")
-    extracted_items = []
-    total_hours = 0.0
-    total_pay = 0.0
-    intime_pay = 0.0
-    overtime_pay = 0.0
-    new_name = None
+    caregivers = []
 
     if request.method == "POST":
         print("POST request received.")
-        file = request.files.get("file")
-        if file:
-            print("File uploaded:", file.filename)
-            content = file.read()
-            print("File size:", len(content), "bytes")
-            msg = email.message_from_bytes(content)
-
-            for part in msg.walk():
-                if part.get_content_type() == "text/html":
-                    print("Found HTML part.")
-                    raw_payload = part.get_payload(decode=True)
-                    decoded_bytes = quopri.decodestring(raw_payload)
-
-                    try:
-                        decoded_html = decoded_bytes.decode("utf-8")
-                    except UnicodeDecodeError:
-                        decoded_html = decoded_bytes.decode("latin1")
-
-                    html = decoded_html.replace("=\n", "").replace("=3D", "=")
-                    soup = BeautifulSoup(html, "html.parser")
-                    tds = soup.find_all("td")
-                    a_s = soup.find_all("a")
-
-                    for td in tds:
-                        style = td.get("style", "").lower().replace(" ", "")
-                        if "text-wrap:nowrap;" in style:
-                            text = td.get_text(strip=True)
-                            if re.fullmatch(r"\d{4}-\d{4}", text):
-                                print("Extracted time range:", text)
-                                extracted_items.append(text)
-                                total_hours += get_duration_hours(text)
-                    
-                    for a in a_s:
-                        label = a.get("aria-label", "").lower().replace(" ", "")
-                        if "viewaidedetails:" in label:
-                            name = a.get_text(strip=True)
-                            try:
-                                last_name, first_name = name.split(" ")
-                                new_name = f"{first_name} {last_name}"
-                            except ValueError:
-                                new_name = name
-                            break
-
-    try:
+        files = request.files.getlist("file")
         pay_rate = float(request.form.get("pay_rate", 0))
         overtime_pay_rate = float(request.form.get("overtime_pay_rate", 0))
-        if total_hours > 80:
-            overtime = total_hours - 80
-            overtime_pay = round(overtime * overtime_pay_rate, 2)
-            intime_pay = round(80 * pay_rate, 2)
-            total_pay = round(intime_pay + overtime_pay, 2)
-        else:
-            intime_pay = round(total_hours * pay_rate, 2)
-            total_pay = intime_pay
-    except ValueError:
-        print("Invalid pay rate input.")
 
-    print("Done processing. Found:", extracted_items)
+        for file in files:
+            if file:
+                print("File uploaded:", file.filename)
+                content = file.read()
+                msg = email.message_from_bytes(content)
 
-    return render_template(
-        "index.html",
-        extracted_items=extracted_items,
-        total_hours=round(total_hours, 2),
-        total_pay=round(total_pay, 2),
-        intime_pay=round(intime_pay, 2),
-        overtime_pay=round(overtime_pay, 2),
-        item_count=len(extracted_items),
-        new_name=new_name
-    )
+                extracted_items = []
+                total_hours = 0.0
+                total_pay = 0.0
+                intime_pay = 0.0
+                overtime_pay = 0.0
+                caregiver_name = None
+
+                for part in msg.walk():
+                    if part.get_content_type() == "text/html":
+                        raw_payload = part.get_payload(decode=True)
+                        decoded_bytes = quopri.decodestring(raw_payload)
+
+                        try:
+                            decoded_html = decoded_bytes.decode("utf-8")
+                        except UnicodeDecodeError:
+                            decoded_html = decoded_bytes.decode("latin1")
+
+                        html = decoded_html.replace("=\n", "").replace("=3D", "=")
+                        soup = BeautifulSoup(html, "html.parser")
+                        tds = soup.find_all("td")
+                        a_s = soup.find_all("a")
+
+                        for td in tds:
+                            style = td.get("style", "").lower().replace(" ", "")
+                            if "text-wrap:nowrap;" in style:
+                                text = td.get_text(strip=True)
+                                if re.fullmatch(r"\d{4}-\d{4}", text):
+                                    extracted_items.append(text)
+                                    total_hours += get_duration_hours(text)
+
+                        for a in a_s:
+                            label = a.get("aria-label", "").lower().replace(" ", "")
+                            if "viewaidedetails:" in label:
+                                name = a.get_text(strip=True)
+                                try:
+                                    last_name, first_name = name.split(" ")
+                                    caregiver_name = f"{first_name} {last_name}"
+                                except ValueError:
+                                    caregiver_name = name
+                                break
+
+                # Pay calculations
+                if total_hours > 80:
+                    overtime = total_hours - 80
+                    overtime_pay = round(overtime * overtime_pay_rate, 2)
+                    intime_pay = round(80 * pay_rate, 2)
+                    total_pay = round(intime_pay + overtime_pay, 2)
+                else:
+                    intime_pay = round(total_hours * pay_rate, 2)
+                    total_pay = intime_pay
+
+                caregivers.append({
+                    "name": caregiver_name or file.filename,
+                    "total_hours": round(total_hours, 2),
+                    "intime_pay": intime_pay,
+                    "overtime_pay": overtime_pay,
+                    "total_pay": total_pay,
+                    "time_ranges": extracted_items
+                })
+
+    return render_template("index.html", caregivers=caregivers)

@@ -6,6 +6,13 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__, template_folder="../templates")
 
+def safe_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
+
+
 def get_duration_hours(time_range):
     try:
         start_str, end_str = time_range.split("-")
@@ -36,8 +43,9 @@ def index():
     if request.method == "POST":
         print("POST request received.")
         files = request.files.getlist("file")
-        pay_rate = float(request.form.get("pay_rate", 0))
-        overtime_pay_rate = float(request.form.get("overtime_pay_rate", 0))
+        pay_rate = safe_float(request.form.get("pay_rate"))
+        overtime_pay_rate = safe_float(request.form.get("overtime_pay_rate"))
+
 
         for file in files:
             if file:

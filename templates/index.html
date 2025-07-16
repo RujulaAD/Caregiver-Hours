@@ -10,21 +10,30 @@
   <style>
     body {
       padding-top: 40px;
-      background-color: #ffebf6;
+      background-color: #ffe8ef;
+      font-family: "Georgia", serif;
     }
     .container {
       max-width: 800px;
+      background-color: #ffc3d5;
     }
     .card {
       margin-top: 20px;
     }
+  .btn-custom {
+    background-color: #e89dc3;
+    color: white;
+    border: none;
+  }
+  .btn-custom:hover {
+    background-color: #e07cab;
+  }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 class="text-center mb-4">Caregiver Hours Calculator</h1>
-    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours.</p>
-    <p>Now, right-click anywhere on table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Now, upload that file here.</p>
+    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours. Right-click anywhere on the table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Now, upload that file here.</p>
     <div class="card shadow-sm">
       <div class="card-body">
         <form method="POST" action="/" enctype="multipart/form-data">
@@ -34,8 +43,8 @@
           </div>
 
           <div class="row mb-3">
+            <h5>Optional:</h5>
             <div class="col">
-              <h5>Optional:</h5>
               <label class="form-label">Pay Rate ($/hr)</label>
               <input type="text" class="form-control" name="pay_rate" placeholder="e.g., 15.00">
             </div>
@@ -53,17 +62,18 @@
     {% if extracted_items %}
     <div class="card shadow-sm">
       <div class="card-body">
-        <h4 class="card-title">Results</h4>
+        <h5 class="card-title">Results</h5>
         <p><strong>Total Duration:</strong> {{ total_hours }} hours</p>
         <p><strong>Number of Visits:</strong> {{ extracted_items | length }}</p>
         {% if total_pay > 0 %}
         <hr>
-        <h5>Pay Breakdown</h5>
+        <h4>Pay Breakdown</h4>
         <p><strong>Total Pay:</strong> ${{ total_pay }}</p>
         <p><strong>Intime Pay:</strong> ${{ intime_pay }}</p>
         <p><strong>Overtime Pay:</strong> ${{ overtime_pay }}</p>
         {% endif %}
-        <h6>Time Ranges:</h6>
+        <hr>
+        <h4>Time Ranges</h4>
         <ul class="list-group mb-3">
           {% for item in extracted_items %}
             <li class="list-group-item">{{ item }}</li>
@@ -79,7 +89,7 @@
     {% endif %}
 
     <footer class="text-center text-muted mt-5 small">
-      Created with ❤️ for LHHCSA employees.
+      Created by Rujula Deshmukh for LHHCSA employees.
     </footer>
   </div>
 

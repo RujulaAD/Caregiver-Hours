@@ -15,10 +15,10 @@
     }
     .container {
       max-width: 800px;
-      background-color: #ffc3d5;
     }
     .card {
       margin-top: 20px;
+      background-color: #ffc3d5;
     }
   .btn-custom {
     background-color: #e89dc3;
@@ -54,7 +54,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">Calculate</button>
+          <button type="submit" class="btn btn-custom w-100">Calculate</button>
         </form>
       </div>
     </div>
@@ -62,18 +62,18 @@
     {% if extracted_items %}
     <div class="card shadow-sm">
       <div class="card-body">
-        <h5 class="card-title">Results</h5>
+        <h4 class="card-title">Results</h4>
         <p><strong>Total Duration:</strong> {{ total_hours }} hours</p>
         <p><strong>Number of Visits:</strong> {{ extracted_items | length }}</p>
         {% if total_pay > 0 %}
         <hr>
-        <h4>Pay Breakdown</h4>
+        <h5>Pay Breakdown</h5>
         <p><strong>Total Pay:</strong> ${{ total_pay }}</p>
         <p><strong>Intime Pay:</strong> ${{ intime_pay }}</p>
         <p><strong>Overtime Pay:</strong> ${{ overtime_pay }}</p>
         {% endif %}
         <hr>
-        <h4>Time Ranges</h4>
+        <h5>Time Ranges</h5>
         <ul class="list-group mb-3">
           {% for item in extracted_items %}
             <li class="list-group-item">{{ item }}</li>

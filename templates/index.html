@@ -66,7 +66,7 @@
           <p><strong>Total Duration:</strong> {{ caregiver.total_hours }} hours</p>
           <p><strong>Number of Visits:</strong> {{ caregiver.scheduled_times | length }}</p>
           {% if caregiver.total_hours != caregiver.total_hours_visit %}
-          <h6><strong>Attention: The hours done by the caregiver is not the same as the hours scheduled. The caregiver completed {{caregiver.total_hours_visit}} hours.</strong></h6>
+          <h6><strong>Attention:</strong> The hours done by the caregiver is not the same as the hours scheduled. The caregiver completed <strong>{{caregiver.total_hours_visit}}</strong> hours.</h6>
           {% endif %}
           {% if caregiver.total_pay > 0 %}
           <hr>

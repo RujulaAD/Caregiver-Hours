@@ -87,7 +87,7 @@ def index():
 
                         for td in tds: #visit times
                             style = td.get("style", "").lower().replace(" ", "")
-                            if "width: 7%; COLOR: #254679;" in style:
+                            if "#254679" in style:
                                 text = td.get_text(strip=True)
                                 if re.fullmatch(r"\d{4}-\d{4}", text):
                                     visit_times.append(text)

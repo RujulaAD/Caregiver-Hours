@@ -74,25 +74,26 @@
           {% endif %}
           <hr>
           <h5>
-            <a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" href="#timeRanges" role="button" aria-expanded="false" aria-controls="timeRanges">
+            <a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" href="#timeRanges{{ loop.index }}" role="button" aria-expanded="false" aria-controls="timeRanges{{ loop.index }}">
               Show/Hide Time Ranges
             </a>
           </h5>
 
-          <div class="collapse" id="timeRanges">
+          <div class="collapse" id="timeRanges{{ loop.index }}">
             <ul class="list-group mb-3 mt-2">
-              {% for item in extracted_items %}
+              {% for item in caregiver.time_ranges %}
                 <li class="list-group-item">{{ item }}</li>
               {% endfor %}
             </ul>
           </div>
+
         </div>
       </div>
     {% endfor %}
 
     {% if request.method == "POST" and caregivers|length == 0 %}
       <div class="alert alert-warning mt-3" role="alert">
-        ⚠️ No valid time ranges were found in the uploaded file(s).
+        No valid time ranges were found in the uploaded file(s).
       </div>
     {% endif %}
 

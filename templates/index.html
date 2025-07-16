@@ -62,7 +62,7 @@
     {% if extracted_items %}
     <div class="card shadow-sm">
       <div class="card-body">
-        <h4 class="card-title">Results</h4>
+        <h4 class="card-title">{{ new_name }}</h4>
         <p><strong>Total Duration:</strong> {{ total_hours }} hours</p>
         <p><strong>Number of Visits:</strong> {{ extracted_items | length }}</p>
         {% if total_pay > 0 %}

@@ -24,13 +24,13 @@ def get_duration_hours(time_range):
         duration_hours = round(duration_min / 60, 2)
         return duration_hours
     except Exception as e:
-        print("⚠️ Error in get_duration_hours:", time_range, "|", e)
+        print("Error in get_duration_hours:", time_range, "|", e)
         return 0.0
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    print("🌐 GET or POST received.")
+    print("GET or POST received.")
     extracted_items = []
     total_hours = 0.0
     total_pay = 0.0
@@ -38,17 +38,17 @@ def index():
     overtime_pay = 0.0
 
     if request.method == "POST":
-        print("📥 POST request received.")
+        print("POST request received.")
         file = request.files.get("file")
         if file:
-            print("📄 File uploaded:", file.filename)
+            print("File uploaded:", file.filename)
             content = file.read()
-            print("🧾 File size:", len(content), "bytes")
+            print("File size:", len(content), "bytes")
             msg = email.message_from_bytes(content)
 
             for part in msg.walk():
                 if part.get_content_type() == "text/html":
-                    print("🧩 Found HTML part.")
+                    print("Found HTML part.")
                     raw_payload = part.get_payload(decode=True)
                     decoded_bytes = quopri.decodestring(raw_payload)
 
@@ -60,15 +60,23 @@ def index():
                     html = decoded_html.replace("=\n", "").replace("=3D", "=")
                     soup = BeautifulSoup(html, "html.parser")
                     tds = soup.find_all("td")
+                    a_s = soup.find_all("a")
 
                     for td in tds:
                         style = td.get("style", "").lower().replace(" ", "")
                         if "text-wrap:nowrap;" in style:
                             text = td.get_text(strip=True)
                             if re.fullmatch(r"\d{4}-\d{4}", text):
-                                print("⏱ Extracted time range:", text)
+                                print("Extracted time range:", text)
                                 extracted_items.append(text)
                                 total_hours += get_duration_hours(text)
+                    
+                    for a in a_s:
+                        label = a.get("aria-label", "").lower().replace(" ", "")
+                        if "View Aide Details:" in label:
+                            name = a.get_text(strip=True)
+                            last_name, first_name = name.split(" ")
+                            new_name = f"{first_name} {last_name}"
 
     try:
         pay_rate = float(request.form.get("pay_rate", 0))
@@ -82,9 +90,9 @@ def index():
             intime_pay = round(total_hours * pay_rate, 2)
             total_pay = intime_pay
     except ValueError:
-        print("⚠️ Invalid pay rate input.")
+        print("Invalid pay rate input.")
 
-    print("✅ Done processing. Found:", extracted_items)
+    print("Done processing. Found:", extracted_items)
 
     return render_template(
         "index.html",
@@ -93,5 +101,6 @@ def index():
         total_pay=round(total_pay, 2),
         intime_pay=round(intime_pay, 2),
         overtime_pay=round(overtime_pay, 2),
-        item_count=len(extracted_items)
+        item_count=len(extracted_items),
+        new_name=new_name
     )

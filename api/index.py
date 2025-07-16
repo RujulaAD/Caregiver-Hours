@@ -36,6 +36,7 @@ def index():
     total_pay = 0.0
     intime_pay = 0.0
     overtime_pay = 0.0
+    new_name = None
 
     if request.method == "POST":
         print("POST request received.")

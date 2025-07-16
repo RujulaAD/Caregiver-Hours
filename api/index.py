@@ -74,10 +74,14 @@ def index():
                     
                     for a in a_s:
                         label = a.get("aria-label", "").lower().replace(" ", "")
-                        if "View Aide Details:" in label:
+                        if "viewaidedetails:" in label:
                             name = a.get_text(strip=True)
-                            last_name, first_name = name.split(" ")
-                            new_name = f"{first_name} {last_name}"
+                            try:
+                                last_name, first_name = name.split(" ")
+                                new_name = f"{first_name} {last_name}"
+                            except ValueError:
+                                new_name = name
+                            break
 
     try:
         pay_rate = float(request.form.get("pay_rate", 0))

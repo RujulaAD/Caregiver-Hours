@@ -33,7 +33,7 @@
 <body>
   <div class="container">
     <h1 class="text-center mb-4">Caregiver Hours Calculator</h1>
-    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours. Right-click anywhere on the table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Do this for up to 15 caregivers you want to calculate. You can now upload all those files here at once and click calculate.</p>
+    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours. Make sure only one caregiver's visits are shown. Right-click anywhere on the table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Do this for up to 15 caregivers you want to calculate. You can now upload all those files here at once and click calculate.</p>
     <div class="card shadow-sm">
       <div class="card-body">
         <form method="POST" action="/" enctype="multipart/form-data">
@@ -64,7 +64,10 @@
         <div class="card-body">
           <h4 class="card-title">{{ caregiver.name }}</h4>
           <p><strong>Total Duration:</strong> {{ caregiver.total_hours }} hours</p>
-          <p><strong>Number of Visits:</strong> {{ caregiver.time_ranges | length }}</p>
+          <p><strong>Number of Visits:</strong> {{ caregiver.scheduled_times | length }}</p>
+          {% if caregiver.total_hours != caregiver.total_hours_visit %}
+          <h6><strong>Attention: The hours done by the caregiver is not the same as the hours scheduled. The caregiver completed {{caregiver.total_hours_visit}} hours.</strong></h6>
+          {% endif %}
           {% if caregiver.total_pay > 0 %}
           <hr>
           <h5>Pay Breakdown</h5>
@@ -81,9 +84,14 @@
 
           <div class="collapse" id="timeRanges{{ loop.index }}">
             <ul class="list-group mb-3 mt-2">
-              {% for item in caregiver.time_ranges %}
+              {% for item in caregiver.scheduled_times %}
                 <li class="list-group-item">{{ item }}</li>
               {% endfor %}
+              {% if caregiver.total_hours != caregiver.total_hours_visit %}
+                {% for item in caregiver.visit_times %}
+                  <li class="list-group-item">{{ item }}</li>
+                {% endfor %}
+              {% endif %}
             </ul>
           </div>
 

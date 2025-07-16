@@ -53,8 +53,10 @@ def index():
                 content = file.read()
                 msg = email.message_from_bytes(content)
 
-                extracted_items = []
+                scheduled_times = []
+                visit_times = []
                 total_hours = 0.0
+                total_hours_visit = 0.0
                 total_pay = 0.0
                 intime_pay = 0.0
                 overtime_pay = 0.0
@@ -75,15 +77,23 @@ def index():
                         tds = soup.find_all("td")
                         a_s = soup.find_all("a")
 
-                        for td in tds:
+                        for td in tds: #scheduled times
                             style = td.get("style", "").lower().replace(" ", "")
                             if "text-wrap:nowrap;" in style:
                                 text = td.get_text(strip=True)
                                 if re.fullmatch(r"\d{4}-\d{4}", text):
-                                    extracted_items.append(text)
+                                    scheduled_times.append(text)
                                     total_hours += get_duration_hours(text)
 
-                        for a in a_s:
+                        for td in tds: #visit times
+                            style = td.get("style", "").lower().replace(" ", "")
+                            if "width: 7%; COLOR: #254679;" in style:
+                                text = td.get_text(strip=True)
+                                if re.fullmatch(r"\d{4}-\d{4}", text):
+                                    visit_times.append(text)
+                                    total_hours_visit += round(get_duration_hours(text) *4) / 4
+
+                        for a in a_s: #name
                             label = a.get("aria-label", "").lower().replace(" ", "")
                             if "viewaidedetails:" in label:
                                 name = a.get_text(strip=True)
@@ -91,7 +101,11 @@ def index():
                                     last_name, first_name = name.split(" ")
                                     caregiver_name = f"{first_name} {last_name}"
                                 except ValueError:
-                                    caregiver_name = name
+                                    try:
+                                        middle_name, last_name, first_name = name.split(" ")
+                                        caregiver_name = f"{first_name} {middle_name} {last_name}"
+                                    except ValueError:
+                                        caregiver_name = name
                                 break
 
                 # Pay calculations
@@ -107,10 +121,12 @@ def index():
                 caregivers.append({
                     "name": caregiver_name or file.filename,
                     "total_hours": round(total_hours, 2),
+                    "total_hours_visit": round(total_hours_visit, 2),
                     "intime_pay": intime_pay,
                     "overtime_pay": overtime_pay,
                     "total_pay": total_pay,
-                    "time_ranges": extracted_items
+                    "scheduled_times": scheduled_times,
+                    "visit_times": visit_times
                 })
 
     return render_template("index.html", caregivers=caregivers)

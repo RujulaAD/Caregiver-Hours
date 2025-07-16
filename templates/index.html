@@ -73,12 +73,19 @@
           <p><strong>Overtime Pay:</strong> ${{ caregiver.overtime_pay }}</p>
           {% endif %}
           <hr>
-          <h5>Time Ranges</h5>
-          <ul class="list-group mb-3">
-            {% for item in caregiver.time_ranges %}
-              <li class="list-group-item">{{ item }}</li>
-            {% endfor %}
-          </ul>
+          <h5>
+            <a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" href="#timeRanges" role="button" aria-expanded="false" aria-controls="timeRanges">
+              Show/Hide Time Ranges
+            </a>
+          </h5>
+
+          <div class="collapse" id="timeRanges">
+            <ul class="list-group mb-3 mt-2">
+              {% for item in extracted_items %}
+                <li class="list-group-item">{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
       </div>
     {% endfor %}

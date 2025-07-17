@@ -7,10 +7,13 @@ import json
 import os
 import os
 from dotenv import load_dotenv
+from flask import Flask, request, render_template, redirect, url_for, session, flash
+
 
 load_dotenv()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 app = Flask(__name__, template_folder="../templates")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "fallback-secret-key")
 CARDS_FILE = "saved_cards.json"
 
 

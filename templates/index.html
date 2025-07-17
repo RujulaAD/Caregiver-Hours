@@ -104,6 +104,14 @@
               {% endif %}
             </div>
           </div>
+          <form action="/save_card" method="POST" class="mt-2">
+            <input type="hidden" name="name" value="{{ caregiver.name }}">
+            <input type="hidden" name="total_hours" value="{{ caregiver.total_hours }}">
+            <input type="hidden" name="intime_pay" value="{{ caregiver.intime_pay }}">
+            <input type="hidden" name="overtime_pay" value="{{ caregiver.overtime_pay }}">
+            <input type="hidden" name="total_pay" value="{{ caregiver.total_pay }}">
+            <button type="submit" class="btn btn-sm btn-outline-success">💾 Save This Card</button>
+          </form>
 
 
         </div>

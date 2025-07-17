@@ -3,8 +3,15 @@ import email
 import quopri
 import re
 from bs4 import BeautifulSoup
+import json
+import os
+from flask import session, redirect, url_for, flash
 
 app = Flask(__name__, template_folder="../templates")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "changeme123")  # Add to Render env
+CARDS_FILE = "saved_cards.json"
+
 
 def safe_float(value):
     try:
@@ -33,6 +40,16 @@ def get_duration_hours(time_range):
     except Exception as e:
         print("Error in get_duration_hours:", time_range, "|", e)
         return 0.0
+
+def load_cards():
+    if not os.path.exists(CARDS_FILE):
+        return []
+    with open(CARDS_FILE, "r") as f:
+        return json.load(f)
+
+def save_cards(cards):
+    with open(CARDS_FILE, "w") as f:
+        json.dump(cards, f, indent=2)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -130,3 +147,57 @@ def index():
                 })
 
     return render_template("index.html", caregivers=caregivers)
+
+@app.route("/saved", methods=["GET", "POST"])
+def saved():
+    if not session.get("authenticated"):
+        if request.method == "POST":
+            if request.form.get("password") == ADMIN_PASSWORD:
+                session["authenticated"] = True
+                return redirect(url_for("saved"))
+            else:
+                flash("Incorrect password", "error")
+        return render_template("password_prompt.html")
+
+    cards = load_cards()
+    return render_template("saved_cards.html", cards=cards)
+
+@app.route("/save_card", methods=["POST"])
+def save_card():
+    if not session.get("authenticated"):
+        return redirect(url_for("saved"))
+
+    card = {
+        "name": request.form.get("name"),
+        "total_hours": request.form.get("total_hours"),
+        "intime_pay": request.form.get("intime_pay"),
+        "overtime_pay": request.form.get("overtime_pay"),
+        "total_pay": request.form.get("total_pay")
+    }
+
+    cards = load_cards()
+    cards.append(card)
+    save_cards(cards)
+    return redirect(url_for("saved"))
+
+@app.route("/delete/<int:index>")
+def delete_card(index):
+    if not session.get("authenticated"):
+        return redirect(url_for("saved"))
+    cards = load_cards()
+    if 0 <= index < len(cards):
+        del cards[index]
+        save_cards(cards)
+    return redirect(url_for("saved"))
+
+@app.route("/delete_all")
+def delete_all():
+    if not session.get("authenticated"):
+        return redirect(url_for("saved"))
+    save_cards([])
+    return redirect(url_for("saved"))
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))

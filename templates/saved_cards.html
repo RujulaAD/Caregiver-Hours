@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head><title>Saved Cards</title></head>
+<body class="container mt-5">
+  <h2>Saved Caregiver Cards</h2>
+  <a href="/logout" class="btn btn-secondary mb-3">Logout</a>
+  {% if cards %}
+    <form action="/delete_all" method="get" onsubmit="return confirm('Delete ALL cards?')">
+      <button class="btn btn-danger mb-3">Delete All</button>
+    </form>
+    {% for card in cards %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>{{ card.name }}</h5>
+          <p>Total Hours: {{ card.total_hours }}</p>
+          <p>Total Pay: ${{ card.total_pay }}</p>
+          <p>Intime Pay: ${{ card.intime_pay }}</p>
+          <p>Overtime Pay: ${{ card.overtime_pay }}</p>
+          <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No cards saved.</p>
+  {% endif %}
+</body>
+</html>

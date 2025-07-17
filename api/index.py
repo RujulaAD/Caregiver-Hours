@@ -5,11 +5,12 @@ import re
 from bs4 import BeautifulSoup
 import json
 import os
-from flask import session, redirect, url_for, flash
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 app = Flask(__name__, template_folder="../templates")
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "changeme123")  # Add to Render env
 CARDS_FILE = "saved_cards.json"
 
 

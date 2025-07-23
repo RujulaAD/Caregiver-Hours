@@ -106,7 +106,7 @@ def index():
                     "total_hours_visit": round(total_hours_visit, 2),
                     "intime_pay": intime_pay,
                     "overtime_pay": overtime_pay,
-                    "total_pay": total_pay,
+                    "total_pay": float(total_pay),
                     "scheduled_times": scheduled_times,
                     "visit_times": visit_times
                 })

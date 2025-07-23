@@ -52,7 +52,7 @@
               <p><strong>Attention:</strong> The caregiver completed <strong>{{ card.total_hours_visit }}</strong> hours, which differs from the schedule.</p>
             {% endif %}
 
-            {% if card.total_pay > 0 %}
+            {% if card.total_pay|float > 0 %}
               <hr>
               <h5>Pay Breakdown</h5>
               <p><strong>Total Pay:</strong> ${{ card.total_pay }}</p>

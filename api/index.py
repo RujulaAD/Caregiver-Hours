@@ -114,22 +114,26 @@ def index():
 
 @app.route("/save_card", methods=["POST"])
 def save_card():
-    if request.form.get("password") != ADMIN_PASSWORD:
-        flash("Incorrect password", "error")
-        return redirect(url_for("index"))
+    data = request.get_json()
+
+    if not data or data.get("password") != ADMIN_PASSWORD:
+        return {"success": False, "message": "Incorrect password"}, 401
+
     card = {
-        "name": request.form.get("name"),
-        "total_hours": request.form.get("total_hours"),
-        "intime_pay": request.form.get("intime_pay"),
-        "overtime_pay": request.form.get("overtime_pay"),
-        "total_pay": request.form.get("total_pay"),
-        "scheduled_times": request.form.getlist("scheduled_times"),
-        "visit_times": request.form.getlist("visit_times")
+        "name": data.get("name"),
+        "total_hours": data.get("total_hours"),
+        "intime_pay": data.get("intime_pay"),
+        "overtime_pay": data.get("overtime_pay"),
+        "total_pay": data.get("total_pay"),
+        "scheduled_times": data.get("scheduled_times", []),
+        "visit_times": data.get("visit_times", [])
     }
+
     cards = load_cards()
     cards.append(card)
     save_cards(cards)
-    return redirect(url_for("index"))
+    return {"success": True, "message": "Card saved successfully"}
+
 
 @app.route("/saved", methods=["GET", "POST"])
 def saved():

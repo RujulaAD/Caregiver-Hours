@@ -31,7 +31,7 @@
 <body>
   <div class="container">
     <h1 class="text-center mb-4">Caregiver Hours Calculator</h1>
-    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours...</p>
+    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours. Make sure only one caregiver's visits are shown. Right-click anywhere on the table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Do this for up to 15 caregivers you want to calculate. You can now upload all those files here at once and click calculate.</p>
 
     <!-- Button to trigger modal -->
     <div class="text-center mb-4">
@@ -131,10 +131,8 @@
           </div>
 
           <!-- AJAX Save Button -->
-          <button type="button" class="btn btn-sm btn-outline-success mt-2"
-                  onclick="saveCard('{{ caregiver.name }}', '{{ caregiver.total_hours }}', '{{ caregiver.intime_pay }}', '{{ caregiver.overtime_pay }}', '{{ caregiver.total_pay }}')">
-            Save This Card
-          </button>
+          <button onclick="saveCard('{{ name }}', '{{ total_hours }}', '{{ intime_pay }}', '{{ overtime_pay }}', '{{ total_pay }}', this)" class="btn btn-primary">Save</button>
+
         </div>
       </div>
     {% endfor %}
@@ -153,11 +151,15 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Save Card JS -->
   <script>
-    function saveCard(name, total_hours, intime_pay, overtime_pay, total_pay) {
+    function saveCard(name, total_hours, intime_pay, overtime_pay, total_pay, button) {
       const password = prompt("Enter admin password to save this card:");
       if (!password) return;
+
+      const cardBody = button.closest(".card-body");
+      const scheduled = [...cardBody.querySelectorAll("ul:nth-of-type(1) li")].map(li => li.textContent);
+      const visitsList = cardBody.querySelectorAll("ul:nth-of-type(2) li");
+      const visits = [...visitsList].map(li => li.textContent);
 
       fetch("/save_card", {
         method: "POST",
@@ -168,6 +170,8 @@
           intime_pay,
           overtime_pay,
           total_pay,
+          scheduled_times: scheduled,
+          visit_times: visits,
           password
         })
       })
@@ -181,5 +185,6 @@
       });
     }
   </script>
+
 </body>
 </html>

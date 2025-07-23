@@ -5,10 +5,8 @@ import re
 from bs4 import BeautifulSoup
 import json
 import os
-import os
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect, url_for, session, flash
-
 
 load_dotenv()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
@@ -16,13 +14,11 @@ app = Flask(__name__, template_folder="../templates")
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "fallback-secret-key")
 CARDS_FILE = "saved_cards.json"
 
-
 def safe_float(value):
     try:
         return float(value)
     except (ValueError, TypeError):
         return 0.0
-
 
 def get_duration_hours(time_range):
     try:
@@ -45,16 +41,9 @@ def get_duration_hours(time_range):
         print("Error in get_duration_hours:", time_range, "|", e)
         return 0.0
 
-def load_cards():
-    if not os.path.exists(CARDS_FILE):
-        return []
-    with open(CARDS_FILE, "r") as f:
-        return json.load(f)
-
 def save_cards(cards):
     with open(CARDS_FILE, "w") as f:
         json.dump(cards, f, indent=2)
-
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -66,7 +55,6 @@ def index():
         files = request.files.getlist("file")
         pay_rate = safe_float(request.form.get("pay_rate"))
         overtime_pay_rate = safe_float(request.form.get("overtime_pay_rate"))
-
 
         for file in files:
             if file:
@@ -98,7 +86,7 @@ def index():
                         tds = soup.find_all("td")
                         a_s = soup.find_all("a")
 
-                        for td in tds: #scheduled times
+                        for td in tds:  # scheduled times
                             style = td.get("style", "").lower().replace(" ", "")
                             if "text-wrap:nowrap;" in style:
                                 text = td.get_text(strip=True)
@@ -106,15 +94,15 @@ def index():
                                     scheduled_times.append(text)
                                     total_hours += get_duration_hours(text)
 
-                        for td in tds: #visit times
+                        for td in tds:  # visit times
                             style = td.get("style", "").lower().replace(" ", "")
                             if "#254679" in style:
                                 text = td.get_text(strip=True)
                                 if re.fullmatch(r"\d{4}-\d{4}", text):
                                     visit_times.append(text)
-                                    total_hours_visit += round(get_duration_hours(text) *4) / 4
+                                    total_hours_visit += round(get_duration_hours(text) * 4) / 4
 
-                        for a in a_s: #name
+                        for a in a_s:  # name
                             label = a.get("aria-label", "").lower().replace(" ", "")
                             if "viewaidedetails:" in label:
                                 name = a.get_text(strip=True)
@@ -158,7 +146,7 @@ def saved():
         if request.method == "POST":
             if request.form.get("password") == ADMIN_PASSWORD:
                 session["authenticated"] = True
-                return redirect(url_for("saved"))
+                return redirect(url_for("index"))
             else:
                 flash("Incorrect password", "error")
         return render_template("password_prompt.html")
@@ -205,3 +193,12 @@ def delete_all():
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
+def load_cards():
+    if os.path.exists(CARDS_FILE):
+        with open(CARDS_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []

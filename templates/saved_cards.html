@@ -1,27 +1,67 @@
-<!doctype html>
-<html>
-<head><title>Saved Cards</title></head>
-<body class="container mt-5">
-  <h2>Saved Caregiver Cards</h2>
-  <a href="https://caregiver-hours.onrender.com/" class="btn btn-secondary mb-3">Home</a>
-  {% if cards %}
-    <form action="/delete_all" method="get" onsubmit="return confirm('Delete ALL cards?')">
-      <button class="btn btn-danger mb-3">Delete All</button>
-    </form>
-    {% for card in cards %}
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>{{ card.name }}</h5>
-          <p>Total Hours: {{ card.total_hours }}</p>
-          <p>Total Pay: ${{ card.total_pay }}</p>
-          <p>Intime Pay: ${{ card.intime_pay }}</p>
-          <p>Overtime Pay: ${{ card.overtime_pay }}</p>
-          <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Caregiver Cards</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .card {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Saved Caregiver Cards</h2>
+      <a href="/" class="btn btn-secondary">Home</a>
+    </div>
+
+    {% if cards %}
+      <form action="/delete_all" method="get" onsubmit="return confirm('Delete ALL cards?')">
+        <button class="btn btn-danger mb-4">Delete All</button>
+      </form>
+
+      {% for card in cards %}
+        <div class="card mb-4">
+          <div class="card-body">
+            <h4 class="card-title">{{ card.name }}</h4>
+            <p><strong>Total Hours:</strong> {{ card.total_hours }}</p>
+            <p><strong>Total Pay:</strong> ${{ card.total_pay }}</p>
+            <p><strong>Intime Pay:</strong> ${{ card.intime_pay }}</p>
+            <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay }}</p>
+            {% if card.date_range %}
+              <p><strong>Date Range:</strong> {{ card.date_range }}</p>
+            {% endif %}
+            {% if card.schedule_conflict %}
+              <div class="alert alert-warning">{{ card.schedule_conflict }}</div>
+            {% endif %}
+            {% if card.ranges %}
+              <button class="btn btn-outline-info btn-sm mb-2" type="button" data-toggle="collapse" data-target="#ranges-{{ loop.index }}" aria-expanded="false">
+                Show Time Ranges
+              </button>
+              <div class="collapse" id="ranges-{{ loop.index }}">
+                <ul class="list-group">
+                  {% for r in card.ranges %}
+                    <li class="list-group-item">{{ r }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger mt-3">Delete</a>
+          </div>
         </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No cards saved.</p>
-  {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">No cards saved.</div>
+    {% endif %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

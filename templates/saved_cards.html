@@ -41,56 +41,29 @@
       </form>
 
       {% for card in cards %}
-        <div class="card shadow-sm">
+        <div class="card mb-3">
           <div class="card-body">
-            <h4 class="card-title">{{ card.name }}</h4>
-            <p><strong>Total Duration:</strong> {{ card.total_hours }} hours</p>
-            {% if card.scheduled_times %}
-              <p><strong>Number of Visits:</strong> {{ card.scheduled_times | length }}</p>
-            {% endif %}
-            {% if card.total_hours != card.total_hours_visit %}
-              <p><strong>Attention:</strong> The caregiver completed <strong>{{ card.total_hours_visit }}</strong> hours, which differs from the schedule.</p>
-            {% endif %}
+            <h5 class="card-title">{{ card.name }}</h5>
+            <p><strong>Scheduled Hours:</strong> {{ card.scheduled_hours }}</p>
+            <p><strong>Completed Hours:</strong> {{ card.total_hours }}</p>
+            <p><strong>Number of Visits:</strong> {{ card.num_visits }}</p>
 
-            {% if card.total_pay|float > 0 %}
-              <hr>
-              <h5>Pay Breakdown</h5>
-              <p><strong>Total Pay:</strong> ${{ card.total_pay }}</p>
-              <p><strong>Intime Pay:</strong> ${{ card.intime_pay }}</p>
-              <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay }}</p>
-            {% endif %}
-
-            <hr>
-            <h5>
-              <a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" href="#ranges{{ loop.index }}" role="button" aria-expanded="false" aria-controls="ranges{{ loop.index }}">
-                Show/Hide Time Ranges
-              </a>
-            </h5>
-
-            <div class="collapse" id="ranges{{ loop.index }}">
-              <div class="row">
-                <div class="col">
-                  <h6>Corrected Schedule Time Ranges:</h6>
-                  <ul class="list-group mb-3 mt-2">
-                    {% for item in card.scheduled_times %}
-                      <li class="list-group-item">{{ item }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-                {% if card.total_hours != card.total_hours_visit %}
-                <div class="col">
-                  <h6>Visit Time Ranges:</h6>
-                  <ul class="list-group mb-3 mt-2">
-                    {% for item in card.visit_times %}
-                      <li class="list-group-item">{{ item }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-                {% endif %}
+            {% if card.time_ranges %}
+              <div>
+                <strong>Visit Time Ranges:</strong>
+                <ul>
+                  {% for time in card.time_ranges %}
+                    <li>{{ time }}</li>
+                  {% endfor %}
+                </ul>
               </div>
-            </div>
+            {% endif %}
 
-            <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger mt-3">Delete</a>
+            <p><strong>Total Pay:</strong> ${{ card.total_pay | float }}</p>
+            <p><strong>Intime Pay:</strong> ${{ card.intime_pay | float }}</p>
+            <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay | float }}</p>
+
+            <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
           </div>
         </div>
       {% endfor %}

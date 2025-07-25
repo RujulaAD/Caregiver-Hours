@@ -62,7 +62,7 @@
               </div>
             {% endif %}
 
-            {% if total_pay > 0 %}
+            {% if card.total_pay > 0 %}
             <p><strong>Total Pay:</strong> ${{ card.total_pay | float }}</p>
             <p><strong>Intime Pay:</strong> ${{ card.intime_pay | float }}</p>
             <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay | float }}</p>

@@ -153,11 +153,11 @@
   <script>
   function promptSave(button) {
     const card = button.closest('.card');
-    const name = card.querySelector(".card-title").innerText;
-    const totalHours = parseFloat(card.querySelector("[data-total-hours]").innerText);
-    const totalPay = parseFloat(card.querySelector("[data-total-pay]").innerText.slice(1));
-    const intimePay = parseFloat(card.querySelector("[data-intime-pay]").innerText.slice(1));
-    const overtimePay = parseFloat(card.querySelector("[data-overtime-pay]").innerText.slice(1));
+    const name = card.querySelector(".card-title")?.innerText || "Unknown";
+    const totalHours = parseFloat(card.querySelector("[data-total-hours]")?.innerText || 0);
+    const totalPay = parseFloat((card.querySelector("[data-total-pay]")?.innerText || "$0").slice(1));
+    const intimePay = parseFloat((card.querySelector("[data-intime-pay]")?.innerText || "$0").slice(1));
+    const overtimePay = parseFloat((card.querySelector("[data-overtime-pay]")?.innerText || "$0").slice(1));
     const scheduledTimes = Array.from(card.querySelectorAll(".scheduled-time")).map(el => el.innerText);
     const visitTimes = Array.from(card.querySelectorAll(".visit-time")).map(el => el.innerText);
 
@@ -187,8 +187,8 @@
       }
     });
   }
-
   </script>
+
 
 </body>
 </html>

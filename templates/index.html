@@ -83,11 +83,11 @@
     </div>
 
     {% for caregiver in caregivers %}
-      <div class="card shadow-sm">
+      <div class="card shadow-sm" data-card-id="{{ loop.index }}">
         <div class="card-body">
           <h4 class="card-title">{{ caregiver.name }}</h4>
           <p><strong>Total Duration:</strong> <span data-total-hours>{{ caregiver.total_hours }}</span> hours</p>
-          <p><strong>Number of Visits:</strong> {{ caregiver.scheduled_times | length }}</p>
+          <p><strong>Number of Visits:</strong> <span data-total-visits>{{ caregiver.scheduled_times | length }}</span></p>
 
           {% if caregiver.total_hours != caregiver.total_hours_visit %}
           <p><strong>Attention:</strong> The total hours clocked by the caregiver is not the same as the total hours in the schedule! The caregiver completed <strong>{{ caregiver.total_hours_visit }}</strong> hours.</p>
@@ -114,7 +114,7 @@
                 <h6>Corrected Schedule Time Ranges:</h6>
                 <ul class="list-group mb-3 mt-2">
                   {% for item in caregiver.scheduled_times %}
-                    <li class="list-group-item scheduled-time">{{ item }}</li>  <!-- Added class -->
+                    <li class="list-group-item scheduled-time">{{ item }}</li>
                   {% endfor %}
                 </ul>
               </div>
@@ -123,7 +123,7 @@
                 <h6>Visit Time Ranges:</h6>
                 <ul class="list-group mb-3 mt-2">
                   {% for item in caregiver.visit_times %}
-                    <li class="list-group-item visit-time">{{ item }}</li>  <!-- Added class -->
+                    <li class="list-group-item visit-time">{{ item }}</li>
                   {% endfor %}
                 </ul>
               </div>
@@ -135,6 +135,7 @@
         </div>
       </div>
     {% endfor %}
+
 
     {% if request.method == "POST" and caregivers|length == 0 %}
       <div class="alert alert-warning mt-3" role="alert">
@@ -186,6 +187,7 @@
       }
     });
   }
+
   </script>
 
 </body>

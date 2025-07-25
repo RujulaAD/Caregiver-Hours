@@ -123,6 +123,7 @@ def save_card():
         card = {
             "name": data.get("name", "Unknown"),
             "total_hours": float(data.get("total_hours", 0)),
+            "total_hours_visit": float(data.get("total_hours_visit", 0)),
             "intime_pay": float(data.get("intime_pay", 0)),
             "overtime_pay": float(data.get("overtime_pay", 0)),
             "total_pay": float(data.get("total_pay", 0)),

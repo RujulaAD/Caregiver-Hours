@@ -44,9 +44,12 @@
         <div class="card mb-3">
           <div class="card-body">
             <h5 class="card-title">{{ card.name }}</h5>
-            <p><strong>Scheduled Hours:</strong> {{ card.scheduled_hours }}</p>
-            <p><strong>Completed Hours:</strong> {{ card.total_hours }}</p>
-            <p><strong>Number of Visits:</strong> {{ card.num_visits }}</p>
+            <p><strong>Total Duration:</strong> {{ card.total_hours }}</p>
+            <p><strong>Number of Visits:</strong> {{ card.visit_times | length }}</p>
+
+            {% if card.total_hours != card.total_hours_visit %}
+            <p><strong>Attention:</strong> The total hours clocked by the caregiver is not the same as the total hours in the schedule! The caregiver completed <strong>{{ card.total_hours_visit }}</strong> hours.</p>
+            {% endif %}
 
             {% if card.time_ranges %}
               <div>
@@ -59,9 +62,11 @@
               </div>
             {% endif %}
 
+            {% if total_pay > 0 %}
             <p><strong>Total Pay:</strong> ${{ card.total_pay | float }}</p>
             <p><strong>Intime Pay:</strong> ${{ card.intime_pay | float }}</p>
             <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay | float }}</p>
+            {% endif %}
 
             <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
           </div>

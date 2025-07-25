@@ -134,7 +134,6 @@ def save_card():
     save_cards(cards)
     return {"success": True, "message": "Card saved successfully"}
 
-
 @app.route("/saved", methods=["GET", "POST"])
 def saved():
     if not session.get("authenticated"):

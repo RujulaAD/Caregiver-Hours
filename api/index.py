@@ -114,25 +114,32 @@ def index():
 
 @app.route("/save_card", methods=["POST"])
 def save_card():
-    data = request.get_json()
+    try:
+        data = request.get_json(force=True)
 
-    if not data or data.get("password") != ADMIN_PASSWORD:
-        return {"success": False, "message": "Incorrect password"}, 401
+        if not data or data.get("password") != ADMIN_PASSWORD:
+            return {"success": False, "message": "Incorrect password"}, 401
 
-    card = {
-        "name": data.get("name"),
-        "total_hours": data.get("total_hours"),
-        "intime_pay": data.get("intime_pay"),
-        "overtime_pay": data.get("overtime_pay"),
-        "total_pay": data.get("total_pay"),
-        "scheduled_times": data.get("scheduled_times", []),
-        "visit_times": data.get("visit_times", [])
-    }
+        card = {
+            "name": data.get("name", "Unknown"),
+            "total_hours": float(data.get("total_hours", 0)),
+            "intime_pay": float(data.get("intime_pay", 0)),
+            "overtime_pay": float(data.get("overtime_pay", 0)),
+            "total_pay": float(data.get("total_pay", 0)),
+            "scheduled_times": data.get("scheduled_times", []),
+            "visit_times": data.get("visit_times", [])
+        }
 
-    cards = load_cards()
-    cards.append(card)
-    save_cards(cards)
-    return {"success": True, "message": "Card saved successfully"}
+        cards = load_cards()
+        cards.append(card)
+        save_cards(cards)
+
+        return {"success": True, "message": "Card saved successfully"}
+    
+    except Exception as e:
+        print("Error saving card:", e)
+        return {"success": False, "message": str(e)}, 500
+
 
 @app.route("/saved", methods=["GET", "POST"])
 def saved():

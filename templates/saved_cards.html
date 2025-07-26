@@ -44,29 +44,48 @@
         <div class="card mb-3">
           <div class="card-body">
             <h5 class="card-title">{{ card.name }}</h5>
-            <p><strong>Total Duration:</strong> {{ card.total_hours }}</p>
+            <p><strong>Total Duration:</strong> {{ card.total_hours }} hours</p>
             <p><strong>Number of Visits:</strong> {{ card.visit_times | length }}</p>
 
             {% if card.total_hours != card.total_hours_visit %}
             <p><strong>Attention:</strong> The total hours clocked by the caregiver is not the same as the total hours in the schedule! The caregiver completed <strong>{{ card.total_hours_visit }}</strong> hours.</p>
             {% endif %}
 
-            {% if card.time_ranges %}
-              <div>
-                <strong>Visit Time Ranges:</strong>
-                <ul>
-                  {% for time in card.time_ranges %}
-                    <li>{{ time }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            {% endif %}
 
             {% if card.total_pay > 0 %}
             <p><strong>Total Pay:</strong> ${{ card.total_pay | float }}</p>
             <p><strong>Intime Pay:</strong> ${{ card.intime_pay | float }}</p>
             <p><strong>Overtime Pay:</strong> ${{ card.overtime_pay | float }}</p>
             {% endif %}
+
+            <hr>
+            <h5>
+              <a class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" href="#timeRanges{{ loop.index }}" role="button" aria-expanded="false" aria-controls="timeRanges{{ loop.index }}">
+                Show/Hide Time Ranges
+              </a>
+            </h5>
+
+            <div class="collapse" id="timeRanges{{ loop.index }}">
+              <div class="row">
+                <div class="col">
+                  <h6>Corrected Schedule Time Ranges:</h6>
+                  <ul class="list-group mb-3 mt-2">
+                    {% for item in card.scheduled_times %}
+                      <li class="list-group-item scheduled-time">{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% if card.total_hours != card.total_hours_visit %}
+                <div class="col">
+                  <h6>Visit Time Ranges:</h6>
+                  <ul class="list-group mb-3 mt-2">
+                    {% for item in card.visit_times %}
+                      <li class="list-group-item visit-time">{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
 
             <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
           </div>

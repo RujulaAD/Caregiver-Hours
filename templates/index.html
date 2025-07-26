@@ -31,7 +31,7 @@
 <body>
   <div class="container">
     <h1 class="text-center mb-4">Caregiver Hours Calculator</h1>
-    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours...</p>
+    <p class="text-center mb-4">In HHA Exchange, go to "Visit", then "Visit Search", and search for a specific caregiver for dates you want to calculate total hours. Make sure only one caregiver's visits are shown. Right-click anywhere on the table that appears and click "Save as..." and save the file as type: "Webpage, Single File". Do this for up to 15 caregivers you want to calculate. You can now upload all those files here at once and click calculate.</p>
 
     <div class="text-center mb-4">
       <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">View Saved Cards</button>
@@ -129,9 +129,9 @@
               </div>
               {% endif %}
             </div>
+          <button class="btn btn-custom w-100" onclick="promptSave(this)">Save</button>
           </div>
-
-          <button class="btn btn-primary" onclick="promptSave(this)">Save</button>
+          
         </div>
       </div>
     {% endfor %}

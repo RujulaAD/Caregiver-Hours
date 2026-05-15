@@ -1,0 +1,43 @@
+[33m7b74f7e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Saved cards page time ranges dropdown
+[33mf660259[m HTML typo
+[33m9177b17[m Saved cards page information display
+[33mcd2c90d[m No pay input save
+[33m4a4ee7b[m Save button debugging 3
+[33m4138af4[m Save button debugging
+[33m21ed4e3[m Save button debugging
+[33mda92b8a[m Show information on saved cards
+[33m28dc9e9[m Float total pay
+[33mfa9341f[m Saved cards page display info
+[33m16b4da2[m Parse JSON instead of request.form
+[33md6fefa5[m Saved cards page styling and password prompt to save
+[33mca4b131[m Pop-up password
+[33med4ed05[m dotenv added to requirements
+[33m41d942f[m Fix session, add secret key, configure environment variables
+[33m5792476[m gitignore for password protection
+[33mfce3c6e[m Small text edits
+[33maec1963[m Saved cards & password protect
+[33mf021ce8[m Text changes
+[33m8b31821[m Time range columns
+[33m54cd9ca[m Checking portion of style for visit times
+[33m9128bfc[m Compare scheduled times and visit times
+[33m97109f2[m Max number of files allowed
+[33mcfbbe63[m Debugged toggle
+[33m28caf74[m Time ranges toggle to show
+[33mcd0520a[m Fixed ValueError
+[33m6ff5241[m Option to upload multiple caregivers
+[33mf201628[m Debugged name finder
+[33m5c061bd[m Initalized name
+[33m8256602[m Name displayed
+[33m03ad2cf[m Name displayed.
+[33mccb1368[m Color changes
+[33m750fc7f[m Formatting changes
+[33mee1b396[m Fix instructions text
+[33m623da32[m Personal style
+[33mfb45daa[m First attempt at styling
+[33m5066f77[m Fix duration calculation bug
+[33maf782f7[m Removed try/except in calc
+[33md764f55[m Update for Render deployment
+[33mf945450[m Cleaned up api/index.py for Vercel deployment
+[33mdbb6175[m Updated requirements.txt to minimal dependencies
+[33m7ce6730[m Fix vercel.json for Python detection
+[33m0b334ed[m Initial commit

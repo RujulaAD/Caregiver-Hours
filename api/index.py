@@ -1,10 +1,12 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import email
 import quopri
 import re
 from bs4 import BeautifulSoup
 
 app = Flask(__name__, template_folder="../templates")
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 200MB max upload
+
 
 def safe_float(value):
     try:
@@ -35,98 +37,106 @@ def get_duration_hours(time_range):
         return 0.0
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    print("GET or POST received.")
-    caregivers = []
+def process_mhtml(file, pay_rate, overtime_pay_rate):
+    """Parse a single MHTML file and return caregiver data dict."""
+    content = file.read()
+    msg = email.message_from_bytes(content)
 
-    if request.method == "POST":
-        print("POST request received.")
-        files = request.files.getlist("file")
-        pay_rate = safe_float(request.form.get("pay_rate"))
-        overtime_pay_rate = safe_float(request.form.get("overtime_pay_rate"))
+    scheduled_times = []
+    visit_times = []
+    total_hours = 0.0
+    total_hours_visit = 0.0
+    total_pay = 0.0
+    intime_pay = 0.0
+    overtime_pay = 0.0
+    caregiver_name = None
 
+    for part in msg.walk():
+        if part.get_content_type() == "text/html":
+            raw_payload = part.get_payload(decode=True)
+            decoded_bytes = quopri.decodestring(raw_payload)
 
-        for file in files:
-            if file:
-                print("File uploaded:", file.filename)
-                content = file.read()
-                msg = email.message_from_bytes(content)
+            try:
+                decoded_html = decoded_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                decoded_html = decoded_bytes.decode("latin1")
 
-                scheduled_times = []
-                visit_times = []
-                total_hours = 0.0
-                total_hours_visit = 0.0
-                total_pay = 0.0
-                intime_pay = 0.0
-                overtime_pay = 0.0
-                caregiver_name = None
+            html = decoded_html.replace("=\n", "").replace("=3D", "=")
+            soup = BeautifulSoup(html, "html.parser")
+            tds = soup.find_all("td")
+            a_s = soup.find_all("a")
 
-                for part in msg.walk():
-                    if part.get_content_type() == "text/html":
-                        raw_payload = part.get_payload(decode=True)
-                        decoded_bytes = quopri.decodestring(raw_payload)
+            for td in tds:  # scheduled times
+                style = td.get("style", "").lower().replace(" ", "")
+                if "text-wrap:nowrap;" in style:
+                    text = td.get_text(strip=True)
+                    if re.fullmatch(r"\d{4}-\d{4}", text):
+                        scheduled_times.append(text)
+                        total_hours += get_duration_hours(text)
 
+            for td in tds:  # visit times
+                style = td.get("style", "").lower().replace(" ", "")
+                if "#254679" in style:
+                    text = td.get_text(strip=True)
+                    if re.fullmatch(r"\d{4}-\d{4}", text):
+                        visit_times.append(text)
+                        total_hours_visit += round(get_duration_hours(text) * 4) / 4
+
+            for a in a_s:  # name
+                label = a.get("aria-label", "").lower().replace(" ", "")
+                if "viewaidedetails:" in label:
+                    name = a.get_text(strip=True)
+                    try:
+                        last_name, first_name = name.split(" ")
+                        caregiver_name = f"{first_name} {last_name}"
+                    except ValueError:
                         try:
-                            decoded_html = decoded_bytes.decode("utf-8")
-                        except UnicodeDecodeError:
-                            decoded_html = decoded_bytes.decode("latin1")
+                            middle_name, last_name, first_name = name.split(" ")
+                            caregiver_name = f"{first_name} {middle_name} {last_name}"
+                        except ValueError:
+                            caregiver_name = name
+                    break
 
-                        html = decoded_html.replace("=\n", "").replace("=3D", "=")
-                        soup = BeautifulSoup(html, "html.parser")
-                        tds = soup.find_all("td")
-                        a_s = soup.find_all("a")
+    # Pay calculations
+    if total_hours > 80:
+        overtime = total_hours - 80
+        overtime_pay = round(overtime * overtime_pay_rate, 2)
+        intime_pay = round(80 * pay_rate, 2)
+        total_pay = round(intime_pay + overtime_pay, 2)
+    else:
+        intime_pay = round(total_hours * pay_rate, 2)
+        total_pay = intime_pay
 
-                        for td in tds: #scheduled times
-                            style = td.get("style", "").lower().replace(" ", "")
-                            if "text-wrap:nowrap;" in style:
-                                text = td.get_text(strip=True)
-                                if re.fullmatch(r"\d{4}-\d{4}", text):
-                                    scheduled_times.append(text)
-                                    total_hours += get_duration_hours(text)
+    return {
+        "name": caregiver_name or file.filename,
+        "total_hours": round(total_hours, 2),
+        "total_hours_visit": round(total_hours_visit, 2),
+        "intime_pay": intime_pay,
+        "overtime_pay": overtime_pay,
+        "total_pay": total_pay,
+        "scheduled_times": scheduled_times,
+        "visit_times": visit_times,
+    }
 
-                        for td in tds: #visit times
-                            style = td.get("style", "").lower().replace(" ", "")
-                            if "#254679" in style:
-                                text = td.get_text(strip=True)
-                                if re.fullmatch(r"\d{4}-\d{4}", text):
-                                    visit_times.append(text)
-                                    total_hours_visit += round(get_duration_hours(text) *4) / 4
 
-                        for a in a_s: #name
-                            label = a.get("aria-label", "").lower().replace(" ", "")
-                            if "viewaidedetails:" in label:
-                                name = a.get_text(strip=True)
-                                try:
-                                    last_name, first_name = name.split(" ")
-                                    caregiver_name = f"{first_name} {last_name}"
-                                except ValueError:
-                                    try:
-                                        middle_name, last_name, first_name = name.split(" ")
-                                        caregiver_name = f"{first_name} {middle_name} {last_name}"
-                                    except ValueError:
-                                        caregiver_name = name
-                                break
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
 
-                # Pay calculations
-                if total_hours > 80:
-                    overtime = total_hours - 80
-                    overtime_pay = round(overtime * overtime_pay_rate, 2)
-                    intime_pay = round(80 * pay_rate, 2)
-                    total_pay = round(intime_pay + overtime_pay, 2)
-                else:
-                    intime_pay = round(total_hours * pay_rate, 2)
-                    total_pay = intime_pay
 
-                caregivers.append({
-                    "name": caregiver_name or file.filename,
-                    "total_hours": round(total_hours, 2),
-                    "total_hours_visit": round(total_hours_visit, 2),
-                    "intime_pay": intime_pay,
-                    "overtime_pay": overtime_pay,
-                    "total_pay": total_pay,
-                    "scheduled_times": scheduled_times,
-                    "visit_times": visit_times
-                })
+@app.route("/process", methods=["POST"])
+def process():
+    """Accept a single MHTML file and return parsed data as JSON."""
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
 
-    return render_template("index.html", caregivers=caregivers)
+    pay_rate = safe_float(request.form.get("pay_rate"))
+    overtime_pay_rate = safe_float(request.form.get("overtime_pay_rate"))
+
+    try:
+        result = process_mhtml(file, pay_rate, overtime_pay_rate)
+        return jsonify(result)
+    except Exception as e:
+        print("Error processing file:", file.filename, "|", e)
+        return jsonify({"error": str(e)}), 500
